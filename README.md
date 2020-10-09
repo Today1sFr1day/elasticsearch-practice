@@ -88,3 +88,16 @@ node.ml = true，需要 enable x-pack
 
 ### Replica Shard
 解决高可用问题，副本分片其实就是主分片的备份，副本数可以动态调整，增加副本数，可以提高系统的高可用性
+
+## 文档 CRUD
+| Operation | API                          | Remark                                                               |
+| ---       | ---                          | ---                                                                  |
+| Create    | POST index_name/_doc         | 不指定 ID，由 ES 自动生成                                             |
+| Create    | PUT index_name/_create/100   | 手动指定 ID ，如果 ID 存在则创建失败                                   |
+| Read      | GET index_name/_doc/100      |                                                                      |
+| Update    | POST index_name/_update/100  | 文档必须存在，对相应字段做增量更新                                      |
+| Delate    | DELETE index_name/_doc/100   |                                                                      |
+| Index     | PUT index_name/_doc/100      | 如果 ID 不存在，则创建新的文档。否则会删除旧文档再创建新文档，版本号增加   |
+| Bulk      | _bulk                        | 批量操作 API ，即使其中一条执行失败也不会影响其他的 API 执行，包含create/update/delete/doc/index等等
+| Mget      | _mget or index_name/_mget    | 批量读取 API ，URI 中未指定 index_name 需要在 docs 中指定 _index       |
+| Msearch   | index_name/_msearch          |
