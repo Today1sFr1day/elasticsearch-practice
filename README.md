@@ -101,3 +101,24 @@ node.ml = true，需要 enable x-pack
 | Bulk      | _bulk                        | 批量操作 API ，即使其中一条执行失败也不会影响其他的 API 执行，包含create/update/delete/doc/index等等
 | Mget      | _mget or index_name/_mget    | 批量读取 API ，URI 中未指定 index_name 需要在 docs 中指定 _index       |
 | Msearch   | index_name/_msearch          |
+
+## Analyzer
+*Demo：2 running Quick brown-foxes leap over lazy dogs in the summer evening*
++ Standard Analyzer - 按照非字母切分（数字保留，符号被过滤），小写处理
++ Simple Analyzer – 按照非字母切分（数字，符号被过滤），小写处理
++ Stop Analyzer – 小写处理，数字和停用词过滤（the，a，is），小写处理
++ Whitespace Analyzer – 按照空格切分，其他不变
++ Keyword Analyzer – 不分词，直接将输入当作输出
++ Patter Analyzer – 正则表达式，默认 \W+ (非字符分隔)
++ Language – 提供了30多种常见语言的分词器，english复数转单数等等（**bug：lazy变成了lazi**）
++ icu_analyzer - 中文分词器，这个/苹果/不大/好吃
+
+## Search API
+### Information Retrieval 信息检索
+  + True Positive 命中相关结果
+  + False Positive 未命中相关结果
+  + False Negative 命中无关结果
+  + True Negative 未命中无关结果
+
+1. Precision (查准率) - 尽可能返回较少无关文档 True Positive / 全部返回的结果 (True & False Positives)
+2. Recall (查全率) - 尽可能返回较多相关文档 True Positive / 所有应该返回的结果 (True Positives & False Negatives)
