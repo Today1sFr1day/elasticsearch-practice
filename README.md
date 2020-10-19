@@ -1,7 +1,7 @@
 # Elasticsearch学习
 参照《Elasticsearch核心技术与实战》
 ## 文档 Document
-ES 是面向文档的，文档是可以被搜索的最小数据单元，被序列化成 JSON 文件保存。类似于 Mongo 中的 Document，区别在于 Mongo 是以 BSON 二进制格式存储***（BSON 其实是 JSON 的超集，包含了 JSON 没有的 date 和 byte 数组类型，例外是没有 JSON 的 number 通用数字类型）***
+ES 是面向文档的，文档是可以被搜索的最小数据单元，被序列化成 JSON 文件保存。类似于 Mongo 中的 Document，区别在于 Mongo 是以 BSON 二进制格式存储**（BSON 其实是 JSON 的超集，包含了 JSON 没有的 date 和 byte 数组类型，例外是没有 JSON 的 number 通用数字类型）**
 每个文档也有一个 Unique ID 即 _id，可以手动指定，也可以自动生成，这点同 Mongo 一样  
 ### 文档元数据
 * _index 文档所属索引名
@@ -103,6 +103,10 @@ node.ml = true，需要 enable x-pack
 | Msearch   | index_name/_msearch          |
 
 ## Analyzer
+分析器（Analyzer）用于进行字符串的分析处理工作，会先标记文本块为适用于倒排索引单独的词（term），然后标准化这些词为标准形式，从而提高这些词的查准率和查全率。包含了三部分工作：
+1. 字符串（character filter）通过字符过滤器去除HTML标记，以及特殊字符转义&转and等
+2. 分词器（tokenizer）将字符串根据拆分规则比如空格将单词分开
+3. 标记过滤（token filters）修改单词，比如大写转小写，去掉停用词（in/the/and）
 *Demo：2 running Quick brown-foxes leap over lazy dogs in the summer evening*
 + Standard Analyzer - 按照非字母切分（数字保留，符号被过滤），小写处理
 + Simple Analyzer – 按照非字母切分（数字，符号被过滤），小写处理
