@@ -122,3 +122,91 @@ node.ml = true，需要 enable x-pack
 
 1. Precision (查准率) - 尽可能返回较少无关文档 True Positive / 全部返回的结果 (True & False Positives)
 2. Recall (查全率) - 尽可能返回较多相关文档 True Positive / 所有应该返回的结果 (True Positives & False Negatives)
+
+### URI Search
+```
+GET index_name|index_na*|_all/_search?q=field_name:xxx
+
+通过添加profile参数可以看到查询的type、description等信息
+{
+	"profile":"true"
+}
+# 指定title字段包含2012的，同q=title:2012，还可以排序分页sort=year:desc&from=0&size=10&timeout=1s，不指定df即为泛查询匹配所有字段
+GET /movies/_search?q=2012&df=title
+
+# 泛查询，指定title字段包含Beautiful OR 其他字段包含Mind，DisjunctionMaxQuery
+GET /movies/_search?q=title:Beautiful Mind
+
+# PhraseQuery，指定title字段包含Beautiful Mind且顺序一致
+GET /movies/_search?q=title:"Beautiful Mind"
+
+# BooleanQuery，title中包含了Beautiful OR Mind，用()进行分组
+GET /movies/_search?q=title:(Beautiful Mind)
+
+# 布尔操作符，AND同时包含，NOT不包含后边，
+GET /movies/_search?q=title:(Beautiful AND Mind)
+
+# +操作符，相当于title:beautiful +title:mind
+GET /movies/_search?q=title:(Beautiful %2BMind)
+
+# 区间查询，[]闭区间，{}开区间，算数符号表示时:>，多条件&&
+GET /movies/_search?q=title:beautiful AND year:[2002 TO 2018%7D
+
+# 通配符查询*，b开头的均命中，TermQuery只要title中有一个term是b开头均可
+GET /movies/_search?q=title:b*
+
+# 模糊匹配，运用于单词拼写错误情况
+GET /movies/_search?q=title:beautifl~1
+
+# title的term包含Lord和Rings就命中，不需要连续包含，区别于"Lord Rings"
+GET /movies/_search?q=title:"Lord Rings"~2
+
+```
+
+
+
+### Request Body & Query DSL
+```
+POST index_name/_search
+{
+	"profile": true,
+	"query": {
+		"match_all": {}
+	}
+}
+
+# 这里需要明白一点，就是query里的AND操作符仅仅代表两个Term都包含，Term就是具体field值分词后的结果集，不需要说顺序一致，只要这个field的terms都有就命中
+
+# 查询name字段包含Ruan Yiming的，也可以使用操作符+号，即Ruan +Yiming
+POST users/_search
+{
+  "query": {
+    "query_string": {
+      "default_field": "name",
+      "query": "Ruan AND Yiming"
+    }
+  }
+}
+
+# 查询多列name、about包含Ruan Yiming 或者 Java Elasticsearch的
+POST users/_search
+{
+  "query": {
+    "query_string": {
+      "fields":["name","about"],
+      "query": "(Ruan AND Yiming) OR (Java AND Elasticsearch)"
+    }
+  }
+}
+
+# simple_query_string默认是OR操作符，query中不支持操作符，AND被拆成了and的term，即只要有name term是ruan OR and OR yiming即命中，如果要使用AND，就需要指定default_operator属性为AND，query为Ruan Yiming即可
+POST users/_search
+{
+  "query": {
+    "simple_query_string": {
+      "query": "Ruan AND Yiming",
+      "fields": ["name"]
+    }
+  }
+}
+```
